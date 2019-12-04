@@ -30,5 +30,5 @@ function erase() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 }
 
-let maxY = 6
+let maxY = 12
 let gridSize = Math.ceil(canvas.height / maxY)

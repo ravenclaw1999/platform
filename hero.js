@@ -1,63 +1,92 @@
 
 class Hero {
   constructor() {
-  	//position
+    // position
     this.x = gridSize * 3.5
     this.y = 0
 
-    //velocity
+    // speed
     this.dx = 0
     this.dy = 0
 
     this.airborne = true
   }
 
-  jump(){
-  	if(this.airborne){
-  		return
-  	}
-  	this.airborne = true
-  	this.dy = 0 - (gridSize / 3)
+  moveLeft() {
+    this.dx = 0 - (gridSize / 10)
   }
-
-  moveLeft(){
-  	this.dx = 0 - (gridSize /10)
+  moveRight() {
+    this.dx = gridSize / 10
   }
-
-  moveRight(){
-  	this.dx = gridSize / 10
+  jump() {
+    // if we're already airborne, exit early
+    if (this.airborne) {
+      return
+    }
+    // jumping makes us airborne
+    this.airborne = true
+    this.dy = 0 - (gridSize / 3)
   }
 
   step() {
-  	//apply velocity to position
+    let xPrev = this.x
+    let yPrev = this.y
+    // apply speed to position
     this.x += this.dx
-    this.y += this.dy //gravity is increasing velocity
+    this.y += this.dy
 
+    // apply friction to x movement (slow down)
     this.dx *= 0.7
+
+    // apply gravity to y movement (speed up)
     this.dy += gridSize / 60
 
-    let groundLevel = canvas.height - gridSize
-    if(this.y > groundLevel){
-    	this.y = groundLevel
-    	this.airborne = false
+    //don't let hero fall fast 
+    if(this.dy >= gridSize){
+      this.dy = gridSize - 1
+    }
+
+    // check if hit ground
+    if(this.dy !== 0){
+    let collision = undefined
+    world.forEach(ground => {
+      let wasAbove = ground.isBelow(xPrev, yPrev)
+      let nowInside = ground.contains(this.x, this.y)                             
+      if (wasAbove && nowInside) {
+        collision = ground
+      }
+    })
+      if(collision !== undefined){
+        this.y = collision.y
+        this.dy = gridSize / 60
+        this.airborne = false
+      }
+      else{
+        this.airborne = true
+      }
     }
   }
 
   draw() {
-  	let image = heroStandSprite.image
-  	if(Math.abs(this.dx > 0.1)){
-  		image = heroWalkSprite1.image
-  	}
-  	if(this.airborne){
-  		image = heroJumpSprite.image
-  	}
-  	ctx.drawImage(
-  		image, 
-  		this.x - gridSize/2,
-  		this.y - gridSize,
-  		gridSize,
-  		gridSize
-  	)
+    // figure out which sprite to draw
+    let image = heroStandSprite.image
+    if (Math.abs(this.dx) > 0.1) {
+      image = heroWalkSprite1.image
+    }
+    if (this.airborne) {
+      image = heroJumpSprite.image
+    }
+
+    // draw the sprite
+    ctx.drawImage(
+      image,
+      this.x - gridSize/2,
+      this.y - gridSize,
+      gridSize,
+      gridSize
+    )
+
+    // draw our logical position
     ctx.fillStyle = 'black'
     ctx.beginPath()
     ctx.arc(this.x, this.y, 3, 0, 2*Math.PI, false)

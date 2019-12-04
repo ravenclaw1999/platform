@@ -1,4 +1,10 @@
-
+let world = [
+  new Ground(2, 2, 18, 2),
+  new Ground(8, 5, 2, 1),
+  new Ground(12, 7, 6, 1),
+  new Ground(22, 6, 4, 1)
+  //new Ground(0, 600, 900, 50)
+]
 let hero = new Hero()
 
 let keyPressed = {}
@@ -10,20 +16,23 @@ window.addEventListener('keyup', event => {
 })
 
 function loop() {
-  if(keyPressed['ArrowLeft']){
+  // turn keyboard input into actions
+  if (keyPressed['ArrowLeft']) {
     hero.moveLeft()
   }
-  if(keyPressed['ArrowRight']){
+  if (keyPressed['ArrowRight']) {
     hero.moveRight()
   }
-  if(keyPressed['Space']){
+  if (keyPressed['Space']) {
     hero.jump()
   }
+
   // change state
   hero.step()
 
   // draw all
   erase()
+  world.forEach(g => g.draw())
   hero.draw()
 
   setTimeout(() => loop(), 1000 / 60)
